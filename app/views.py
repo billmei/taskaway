@@ -2,8 +2,7 @@ from flask import render_template, send_from_directory
 from flask import url_for, redirect, request
 from . import app, db
 from .forms import LoginForm
-from .util import ts, send_email
-from ..config import EMAIL_CONFIRM_SALT
+from config import EMAIL_CONFIRM_SALT
 
 # Deletes trailing slashes before loading the page
 @app.before_request 
@@ -21,9 +20,10 @@ def render_html_page(pagename):
 @app.route('/index')
 def render_index_page():
     return render_template('index.html')
-@app.route('/login', methods=["GET", "POST"])
-def render_login_page():
+@app.route('/signup', methods=["GET", "POST"])
+def render_signup_page():
     form = LoginForm()
+
     if form.validate_on_submit():
         user = User(
             email = form.email.data,
@@ -32,22 +32,30 @@ def render_login_page():
         db.session.add(user)
         db.session.commit()
 
-        subject = "Confirm your email"
-        token = ts.dumps(self.email, salt=EMAIL_CONFIRM_SALT)
+        login_user(user)
 
-         confirm_url = url_for(
-            'confirm_email',
-            token=token,
-            _external=True)
+        return redirect(url_for('dashboard'))
+    return render_template('signup.html', form=form)
 
-        html = render_template(
-            'email/activate.html',
-            confirm_url=confirm_url)
+@app.route('/login', methods=["GET", "POST"])
+def render_login_page():
+    form = LoginForm()
 
-        send_email(user.email, subject, html)
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first_or_404()
+        if user.is_correct_password(form.password.data):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(url_for('index'))
 
-        return redirect(url_for("dashboard"))
     return render_template('login.html', form=form)
+
+@app.route('/signout')
+def signout():
+    logout_user()
+    return redirect(url_for('index'))
+    
 @app.route('/dashboard')
 def render_dashboard_page():
     return render_template('dashboard.html')

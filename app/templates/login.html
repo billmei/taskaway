@@ -5,7 +5,11 @@
 {% block container %}
 	<div class="row">
 		<div class="col-xs-12">
-			
+			<ul>
+				{% for field in form %}
+					<li>{{ field }}{{ field.label }}</li>
+				{% endfor %}
+			</ul>
 		</div>
 	</div>
 {% endblock %}

@@ -11,10 +11,10 @@ except EnvironmentError:
     pass
 
 assets = Environment(app)
-scss = Bundle('sass/normalize.scss', 'sass/colors.scss', 'sass/main.scss',
-    filters='pyscss cssmin', output='gen/all.css')
-js = Bundle('js/jquery-1.10.2.min.js', 'js/modernizr-2.6.2.min.js', 'js/plugins.js',
-    'js/main.js',
+scss = Bundle('sass/bootstrap.css', 'sass/colors.scss', 'sass/main.scss',
+    filters='pyscss,cssmin', output='gen/all.css')
+js = Bundle('js/jquery-1.10.2.min.js', 'js/modernizr-2.6.2.min.js',
+    'js/bootstrap.min.js', 'js/plugins.js', 'js/main.js',
     filters='jsmin', output='gen/packed.js')
 assets.register('scss_all', scss)
 assets.register('js_all', js)

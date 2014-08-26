@@ -57,4 +57,5 @@ docs/_build/
 
 # Private keys
 secret.txt
+salt.txt
 instance/

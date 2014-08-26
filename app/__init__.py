@@ -1,6 +1,7 @@
 from flask import Flask
 from flask.ext.assets import Environment, Bundle
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.bcrypt import Bcrypt
 
 app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
 app.config.from_object('config')
@@ -19,6 +20,7 @@ js = Bundle('js/jquery-1.10.2.min.js', 'js/modernizr-2.6.2.min.js',
 assets.register('scss_all', scss)
 assets.register('js_all', js)
 
+bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 
 from app import views, models

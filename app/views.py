@@ -1,6 +1,9 @@
 from flask import render_template, send_from_directory
 from flask import url_for, redirect, request
-from app import app
+from . import app, db
+from .forms import LoginForm
+from .util import ts, send_email
+from ..config import EMAIL_CONFIRM_SALT
 
 # Deletes trailing slashes before loading the page
 @app.before_request 
@@ -15,22 +18,68 @@ def render_html_page(pagename):
 
 # (Pseudo) static html pages
 @app.route('/')
+@app.route('/index')
 def render_index_page():
     return render_template('index.html')
+@app.route('/login', methods=["GET", "POST"])
+def render_login_page():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User(
+            email = form.email.data,
+            _password = form.password.data
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        subject = "Confirm your email"
+        token = ts.dumps(self.email, salt=EMAIL_CONFIRM_SALT)
+
+         confirm_url = url_for(
+            'confirm_email',
+            token=token,
+            _external=True)
+
+        html = render_template(
+            'email/activate.html',
+            confirm_url=confirm_url)
+
+        send_email(user.email, subject, html)
+
+        return redirect(url_for("dashboard"))
+    return render_template('login.html', form=form)
+@app.route('/dashboard')
+def render_dashboard_page():
+    return render_template('dashboard.html')
+    @app.route('/confirm/<token>')
+    def confirm_email(token):
+        try:
+            email = ts.loads(token, salt=EMAIL_CONFIRM_SALT, max_age=86400)
+        except:
+            abort(404)
+
+        user = User.query.filter_by(email=email).first_or_404()
+
+        user.email_confirmed = True
+
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('signin'))
 
 # Error Handlers
 @app.errorhandler(400)
-def page_not_found(error):
+def render_error(error):
     return render_template('error.html', errorcode=400), 400
 @app.errorhandler(401)
-def page_not_found(error):
+def render_error(error):
     return render_template('error.html', errorcode=401), 401
 @app.errorhandler(403)
-def page_not_found(error):
+def render_error(error):
     return render_template('error.html', errorcode=403), 403
 @app.errorhandler(404)
-def page_not_found(error):
+def render_error(error):
     return render_template('error.html', errorcode=404), 404
 @app.errorhandler(500)
-def server_error(error):
+def render_error(error):
     return render_template('error.html', errorcode=500), 500

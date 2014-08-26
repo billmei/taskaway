@@ -1,11 +1,8 @@
 from flask.ext.wtf import Form
-from wtforms import TextField, PasswordField
+from flask.ext.wtf.html5 import EmailField
+from wtforms import PasswordField
 from wtforms.validators import Required
 
-# class LoginForm(Form):
-#     openid = TextField('openid', validators = [Required()])
-#     remember_me = BooleanField('remember_me', default = False)
-
 class LoginForm(Form):
-    email = TextField('Email', validators=[Required()])
+    email = EmailField('Email', validators=[Required()])
     password = PasswordField('Password', validators=[Required()])

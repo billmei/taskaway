@@ -1,6 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+app/static/gen/
+app/static/.webassets-cache/
 
 # C extensions
 *.so
